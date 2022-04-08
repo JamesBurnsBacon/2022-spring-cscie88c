@@ -8,6 +8,11 @@ object Dependencies {
     "org.typelevel" %% "cats-testkit-scalatest" % "2.1.5"% Test,
     "com.github.alexarchambault" %% "scalacheck-shapeless_1.15" % "1.3.0" % Test
   )
+  lazy val algeBird = Seq(
+    //Algebird
+    "com.twitter" %% "algebird-core" % "0.13.9",
+    "com.twitter" %% "algebird-core" % "0.13.9" % "test"
+  )
 
   val circeVersion = "0.13.0"
   val pureconfigVersion = "0.15.0"
@@ -37,5 +42,6 @@ object Dependencies {
     // logging
     "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
     "ch.qos.logback" % "logback-classic" % "1.2.3"
+
   )
 }

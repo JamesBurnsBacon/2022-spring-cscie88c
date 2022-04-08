@@ -22,4 +22,8 @@ object Employee {
     }
     employees.sorted(salaryOrdering)
   }
+<<<<<<< Updated upstream
 } 
+=======
+} //last args in salary ordering are suspicious
+>>>>>>> Stashed changes
