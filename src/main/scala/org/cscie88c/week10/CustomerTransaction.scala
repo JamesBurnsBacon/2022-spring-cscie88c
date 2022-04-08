@@ -32,7 +32,7 @@ object CustomerTransaction {
     )
   }.toOption
 
-  def apply(raw: RawTransaction): CustomerTransaction =
+  def applyy(raw: RawTransaction): CustomerTransaction = //added extra y
     CustomerTransaction(
       customerId = raw.customer_id,
       transactionDate = raw.trans_date,
