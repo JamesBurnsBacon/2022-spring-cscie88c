@@ -34,9 +34,7 @@ object FortuneTellerApp {
     printResults(comparsionString)                                          // 6. print results
     spark.stop()                                                            // 7. stop spark cluster
   }
-    def printResults(s: String): Unit = {
-    println(s)
-  }
+    def printResults(s: String): Unit = {println(s)}
 
   def readConfig(): FTSparkConfig = {
     ConfigUtils.loadAppConfig[FTSparkConfig](CONFIG_PATH)
@@ -87,7 +85,7 @@ object FortuneTellerApp {
     // val df2 = df.withColumn("USD", (df("USD") - 1) / 1) //error is thrown here
     // val df3 = df2.withColumn("hashrate", (df("hashrate") - 1) / 1)
     // val df4 = df3.withColumn("activeAccounts", (df("activeAccounts") - 1) / 1)
-    val df2 = df.withColumn("USD", (df("USD") - priceMean) / priceSD) //error is thrown here
+    val df2 = df.withColumn("USD", (df("USD") - priceMean) / priceSD)
     val df3 = df2.withColumn("hashrate", (df("hashrate") - HashMean) / HashSD)
     val df4 = df3.withColumn("activeAccounts", (df("activeAccounts") - AAMean) / AASD)
     df4
@@ -122,3 +120,5 @@ object FortuneTellerApp {
   // https://linuxhint.com/mean-pyspark/
   // https://stackoverflow.com/questions/39926411/provide-schema-while-reading-csv-file-as-a-dataframe
   // https://stackoverflow.com/questions/56849138/java-lang-runtimeexception-unsupported-literal-type-class-org-joda-time-datetim
+  // https://www.calculatorsoup.com/calculators/algebra/percent-difference-calculator.php
+  
