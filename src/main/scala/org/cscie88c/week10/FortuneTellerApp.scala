@@ -16,6 +16,7 @@ case class FTSparkConfig(name: String, masterUrl: String, transactionFile: Strin
 // run with: sbt "runMain org.cscie88c.week10.FortuneTellerApp"
 object FortuneTellerApp {
   val CONFIG_PATH="org.cscie88c.fortune-teller"
+  val CSVLastRow = 2310 // index for last entry row in CSV
 
   val csvImportSchema = StructType(Array(
     StructField("timestamp", StringType, true),
@@ -34,7 +35,7 @@ object FortuneTellerApp {
     printResults(comparsionString)                                          // 6. print results
     spark.stop()                                                            // 7. stop spark cluster
   }
-    def printResults(s: String): Unit = {println(s)}
+  def printResults(s: String): Unit = {println(s)}
 
   def readConfig(): FTSparkConfig = {
     ConfigUtils.loadAppConfig[FTSparkConfig](CONFIG_PATH)
@@ -47,13 +48,17 @@ object FortuneTellerApp {
       .format("csv")
       .option("header", "true")
       .schema(csvImportSchema)
-      .load() // test in REPL
+      .load(conf.transactionFile)
+  }
+
+  def extractDoubleFromAny(n: Any): Double = {
+    n.toString().toDouble
   }
 
   def computeComparisonString(df: DataFrame): String = {
-    val priceValue = 1.227895
-    val HashValue = 1.186966
-    val AAValue = 0.993721
+    val priceValue = extractDoubleFromAny(df.select("USD").collect()(CSVLastRow)(0)) //takes value from last row
+    val HashValue = extractDoubleFromAny(df.select("hashrate").collect()(CSVLastRow)(0))
+    val AAValue = extractDoubleFromAny(df.select("activeAccounts").collect()(CSVLastRow)(0))
 
     val priceVHash = if (priceValue < HashValue) {"undervalued"} else {"overvalued"}
     val priceVAA = if (priceValue < AAValue) {"undervalued"} else {"overvalued"}
@@ -69,36 +74,17 @@ object FortuneTellerApp {
   }
 
   def normalize(df: DataFrame): DataFrame = {
-    val priceMean: Double = 8.7593
-    val priceSD = 1.4466
-    val HashMean = 44.8053
-    val HashSD =  1.7137
-    val AAMean = 13.5137
-    val AASD =  0.2663
-    // val priceMean: DoubleType = df.groupBy("USD").mean("USD").collect//needs to return single value, not column or df
-    // val priceSD = df.select(stddev_pop(df("USD"))).get(0)
-    // val HashMean = df.select(mean(df("hashrate")))
-    // val HashSD =  df.select(stddev_pop(df("hashrate")))
-    // val AAMean = df.select(mean(df("activeAccounts")))
-    // val AASD =  df.select(stddev_pop(df("activeAccounts")))
-    //print("Calculated Means and SDs")
-    // val df2 = df.withColumn("USD", (df("USD") - 1) / 1) //error is thrown here
-    // val df3 = df2.withColumn("hashrate", (df("hashrate") - 1) / 1)
-    // val df4 = df3.withColumn("activeAccounts", (df("activeAccounts") - 1) / 1)
+    val priceMean =  df.select(mean("USD")).collect()(0)(0) 
+    val priceSD = df.select(stddev_pop("USD")).collect()(0)(0)
+    val HashMean = df.select(mean("hashrate")).collect()(0)(0)
+    val HashSD =  df.select(stddev_pop("hashrate")).collect()(0)(0)
+    val AAMean = df.select(mean("activeAccounts")).collect()(0)(0)
+    val AASD =  df.select(stddev_pop("activeAccounts")).collect()(0)(0)
+   
     val df2 = df.withColumn("USD", (df("USD") - priceMean) / priceSD)
     val df3 = df2.withColumn("hashrate", (df("hashrate") - HashMean) / HashSD)
     val df4 = df3.withColumn("activeAccounts", (df("activeAccounts") - AAMean) / AASD)
     df4
-    // val priceMean = df.select(mean("USD")) //needs to return single value, not column
-    // val priceSD = df.select(stddev_pop("USD"))
-    // val HashMean = df.select(mean("hashrate"))
-    // val HashSD = df.select(stddev_pop("hashrate"))
-    // val AAMean = df.select(mean("activeAccounts"))
-    // val AASD = df.select(stddev_pop("activeAccounts"))
-    // val df2 = df.withColumn("USD", (df("USD") - priceMean) / priceSD)
-    // val df3 = df2.withColumn("hashrate", (df("hashrate") - HashMean) / HashSD)
-    // val df4 = df3.withColumn("activeAccounts", (df("activeAccounts") - AAMean) / AASD)
-    // df4
     // Built for data from glassnode
     
     // Takes natural log of raw data
